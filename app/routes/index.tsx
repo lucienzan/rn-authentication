@@ -20,7 +20,7 @@ const ContentStack = () => {
   const { authState, onLogout } = useAuthContext();
   return (
     <NavigationStack.Navigator initialRouteName={authState?.authenticated ? "Home" : "Login"}>
-      <NavigationStack.Screen name="Login" component={Login} />
+      <NavigationStack.Screen name="Login" component={Login} options={{ headerShown: false }} />
       <NavigationStack.Screen name="Register" component={Register} />
       <NavigationStack.Screen name="Home" component={Home} options={{ headerRight: () => <Button onPress={onLogout} title="logout"/> }} />
     </NavigationStack.Navigator>

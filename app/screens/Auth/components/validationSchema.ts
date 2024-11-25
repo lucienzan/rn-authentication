@@ -4,15 +4,14 @@ const reqErrMsg = (field: string): string => {
   return `${field} is required.`;
 };
 
-// Improved schema with explicit "required" check
 export const FormSchema = z.object({
   email: z
     .string()
-    .min(1, { message: reqErrMsg("Email") })  // Ensure it's not empty
-    .email({ message: "Invalid email address." }),  // Then ensure it's a valid email
+    .min(1, { message: reqErrMsg("Email") })
+    .email({ message: "Invalid email address." }),
   password: z
     .string()
-    .min(1, { message: reqErrMsg("Password") })  // Ensure password is not empty
+    .min(1, { message: reqErrMsg("Password") })
 });
 
 export type ValidationForm = z.infer<typeof FormSchema>;
