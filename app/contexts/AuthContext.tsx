@@ -10,8 +10,9 @@ interface AuthProps {
 }
 
 const TOKEN_KEY = "my-jwt-token";
-export const API_URL = "https://api.developbetterapps.com/api#/";
+export const API_URL = "https://api.developbetterapps.com";
 const AuthContext = createContext<AuthProps>({});
+
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<{
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useDrawerContext must be used within a DrawerProvider");
+    throw new Error("useAuthContext must be used within a AuthProvider");
   }
   return context;
 };
