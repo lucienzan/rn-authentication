@@ -19,10 +19,15 @@ export type RootStackParamList = {
 const ContentStack = () => {
   const { authState, onLogout } = useAuthContext();
   return (
-    <NavigationStack.Navigator initialRouteName={authState?.authenticated ? "Home" : "Login"}>
-      <NavigationStack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-      <NavigationStack.Screen name="Register" component={Register} />
+    <NavigationStack.Navigator>
+      {authState?.authenticated ? (
       <NavigationStack.Screen name="Home" component={Home} options={{ headerRight: () => <Button onPress={onLogout} title="logout"/> }} />
+      ):(
+      <>
+      <NavigationStack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+      <NavigationStack.Screen name="Register" component={Register} options={{ headerShown: false }} />
+      </>
+      )}
     </NavigationStack.Navigator>
   );
 };

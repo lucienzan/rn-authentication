@@ -5,6 +5,9 @@
     "lib": [
       "esnext"
     ],
+    "paths": {
+      "@firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
+    },
     "allowJs": false,
     "skipLibCheck": true,
     "noEmit": true,

@@ -3,17 +3,25 @@ import React, { useState } from 'react'
 import { AuthForm } from './components/AuthForm'
 import { ValidationForm } from './components/validationSchema'
 import { useAuthContext } from '../../contexts/AuthContext'
+import { responseData } from '../../model/response'
 
 const Register = () => {
   const { onRegister } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerified, setIsVerified] = useState<boolean | null | undefined>(false);
 
   const onSubmit = async (data: ValidationForm) => {
-    const result = await onRegister!(data.email, data.password);
     setIsLoading(true)
-    if (result && result.error) {
-      console.warn(result);
-    }
+    await onRegister!(data.email, data.password).then((res : responseData) => {
+      if (res.code == 200) {
+        setIsVerified(res.data.verified);
+      }
+      if (res && res.error) {
+        console.warn(res.message);
+      }
+    }).finally(() => {
+      setIsLoading(false);
+    });
   }
 
   return (

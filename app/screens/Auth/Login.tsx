@@ -2,12 +2,26 @@ import React, { useState } from 'react'
 import { AuthForm } from './components/AuthForm'
 import { ValidationForm } from './components/validationSchema'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useAuthContext } from '../../contexts/AuthContext'
+import { responseData } from '../../model/response'
 
 const Login = () => {
+  const { authState,onLogin } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
-  const onSubmit = (data: ValidationForm) => {
+  console.log(authState)
+  const onSubmit = async (data: ValidationForm) => {
     setIsLoading(true)
-    console.log(data)
+    await onLogin!(data.email, data.password).then((res : responseData) => {
+      if (res.code == 200) {
+        console.log("login")
+        return (res.data);
+      }
+      if (res && res.error) {
+        console.warn(res.message);
+      }
+    }).finally(() => {
+      setIsLoading(false);
+    });
   }
   return (
     <SafeAreaView>
