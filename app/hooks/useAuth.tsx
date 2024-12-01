@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { sendEmailVerification } from "firebase/auth"
 import { responseData } from "../model/response"
 import { users } from "../model/user"
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore"
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore"
 
 const useSendVerify = (isSend: boolean) => {
 	const [loading, setLoading] = useState(false)
@@ -60,13 +60,13 @@ const useCreateUserDoc = () => {
 						userId: data.id,
 						email: data.email,
 						name: data.name,
-            address: data.address,
-            provider: data.provider,
-            verified: true,
-            createdUserId: data.id,
-            createDate: Date.now()
-          })
-          setResponse({
+						address: data.address,
+						provider: data.provider,
+						verified: true,
+						createdUserId: data.id,
+						createDate: Date.now(),
+					})
+					setResponse({
 						code: 200,
 						message: "User created successfully.",
 						error: true,
