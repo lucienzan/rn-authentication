@@ -1,9 +1,8 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react"
-import * as SecureStore from "expo-secure-store"
-import { doc, setDoc } from "firebase/firestore"
-import {  auth, dbConfig } from "../domain/firebaseConfig"
-import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth"
+import { auth } from "../domain/firebaseConfig"
+import { createUserWithEmailAndPassword, onAuthStateChanged, reload, sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth"
 import { authState, responseData } from "../model/response"
+import { useCreateUserDoc } from "../hooks/useAuth"
 
 interface AuthProps {
 	authState?: authState
@@ -15,14 +14,15 @@ interface AuthProps {
 const AuthContext = createContext<AuthProps>({})
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [authState, setAuthState] = useState<authState>({ authenticated: false, verified: null })
+	const { setData } = useCreateUserDoc();
 
 	useEffect(() => {
 		const onLoadData = async () => {
-      await onAuthStateChanged(auth, user => {
-        if (user !== null && user.emailVerified) {
-						setAuthState({  authenticated: true, verified: auth.currentUser?.emailVerified })
+			await onAuthStateChanged(auth, user => {
+				if (user !== null && user.emailVerified) {
+						setAuthState({  authenticated: true, verified: user.emailVerified, isSendVerified: false, email: user.email! })
 					} else {
-						setAuthState({ authenticated: false, verified: auth.currentUser?.emailVerified })
+						setAuthState({ authenticated: false, verified: false, isSendVerified: true, email: "" })
 					}
 				})
 		}
@@ -52,7 +52,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 							throw new Error(`Firebase Auth Error: ${errorMessage}`)
 					}
 				})
-      await sendEmailVerification(userCredential.user);
+			await sendEmailVerification(userCredential.user);
+			setData({
+				email: userCredential.user.email,
+				id: userCredential.user.uid,
+  			name: userCredential.user.displayName,
+				address: "",
+				provider: userCredential.user.providerData[0].providerId
+			});
+			await signOut(auth);
       setAuthState({ authenticated: false, verified: false, isSendVerified: true })
       const response: responseData = {
         error: false,
@@ -68,22 +76,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 	const onLogin = async (email: string, password: string) => {
 		try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+			const userCredential = await signInWithEmailAndPassword(auth, email, password);
+			await reload(userCredential.user);
       let response: responseData;
       if (!userCredential.user.emailVerified) {
-        setAuthState({ authenticated: false, verified: false, isSendVerified: true });
-        await signOut(auth);
         return response = {
           error: true,
           code: 400,
-          data: authState,
+          data: { authenticated: false, verified: false, isSendVerified: true, email: email },
           message: "Please verify your email before logging in."
         }
-      }
+			}
+		 setAuthState({  authenticated: true, verified: userCredential.user.emailVerified, isSendVerified: false, email: userCredential.user.email! })
      return response = {
         error: false,
         code: 200,
-        data: { authenticated: true, verified: true },
+        data: authState,
         message: "Welcome Back"
       }
 		} catch (e) {

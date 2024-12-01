@@ -14,7 +14,7 @@ const Register = () => {
     setIsLoading(true)
     await onRegister!(data.email, data.password).then((res : responseData) => {
       if (res.code == 200) {
-        setIsVerified(res.data.verified);
+        setIsVerified(res.data?.verified);
       }
       if (res && res.error) {
         console.warn(res.message);
